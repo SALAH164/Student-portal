@@ -1,0 +1,340 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>
+#define cls system("cls");
+#define pr printf
+#define sc scanf
+
+struct Student {
+    int id;
+    char name[255];
+    char password[255];
+};
+
+struct Doctor {
+    int id;
+    char name[255];
+    char password[255];
+};
+
+struct Admin {
+    int id;
+    char name[255];
+    char password[255];
+};
+
+struct Course {
+    int id;
+    char name[255];
+    int prerequisites[10]; // stores the courses required to be finished before enrolling in this course
+};
+
+struct StudentCourses {
+    int student_id;
+    int course_id;
+    int grades[3];
+    bool is_finished; // specifies whether the student has finished this course or not
+};
+
+int fsize;
+
+struct Student loggedInStudent;
+struct Doctor loggedInDoctor;
+struct Admin loggedInAdmin;
+
+void enroll_course(int student_id, struct Course);
+
+void create_course(int, char[]);
+
+void display_courses();
+
+bool isStudentCourseFinished(int, int);
+
+bool login(int);
+
+bool checkPrerequistes(struct Course, int);
+
+void listStudents();
+
+void main()
+{
+    //reg(2);
+    printf("1. Student Portal\n2. Doctor Portal\n3. Adminstrator Portal\n");
+    int userType = 1;
+    scanf("%d", &userType);
+    cls
+    while(!login(userType-1)) {
+        cls
+        printf("invalid login credentials please try again\n");
+    }
+     switch(userType){
+     case 1:
+        Student();
+        break;
+     case 2:
+        Doctor();
+        break;
+
+        case 3:
+        Admin();
+        break;
+        default :
+            printf("Wrong input\n");
+     }
+}
+
+void Student()
+{
+    cls
+    printf("Hi you're currently logged in as %s\n======================================================\n", loggedInStudent.name);
+    int key;
+    scanf("%d", &key);
+    /*
+        Check grades
+        Check available courses
+    */
+}
+
+void Doctor()
+{
+    cls
+    printf("Hi you're currently logged in as %s\n======================================================\n", loggedInDoctor.name);
+    int key;
+    scanf("%d", &key);
+    // update Student grades
+
+}
+
+void Admin()
+{
+    int key;
+    while(key != 9) {
+        cls
+        printf("Hi you're currently logged in as %s\n======================================================\n", loggedInAdmin.name);
+        printf("1. Create new Account\n2. Create Course\n3. Enroll Student to course\n4. Show student info\n");
+        scanf("%d", &key);
+        cls
+        switch(key) {
+        case(1): ;
+            int userType;
+            printf("1. Student account\n2. Doctor Account\n");
+            scanf("%d", &userType);
+            reg(userType-1);
+            break;
+        case(2):
+            break;
+        case(3):
+            break;
+        case(4):
+            listStudents();
+            break;
+        }
+    }
+    // Create Student or Doctor Account
+    // Create Course
+    // enroll student to course
+}
+
+bool login(int userType)
+{
+    int id;
+    char password[255];
+    printf("Enter ID: ");
+    scanf("%d", &id);
+    fflush(stdin);
+    printf("Enter Password: ");
+    scanf("%s", password);
+    fflush(stdin);
+    FILE *f;
+    switch(userType) {
+        case(0): ;
+            struct Student student;
+            f = fopen("students.bin", "ab+");
+            rewind(f);
+            while(fread(&student, sizeof(struct Student), 1, f)) {
+                if(student.id == id && strcmp(student.password, password)) {
+                    loggedInStudent = student;
+                    fclose(f);
+                    return true;
+                }
+            }
+            fclose(f);
+        break;
+    case(1): ;
+        struct Doctor doctor;
+        f = fopen("doctors.bin", "ab+");
+        rewind(f);
+        while(fread(&doctor, sizeof(struct Doctor), 1, f)) {
+            if(doctor.id == id && strcmp(doctor.password, password)) {
+                loggedInDoctor = doctor;
+                fclose(f);
+                return true;
+            }
+        }
+        fclose(f);
+        break;
+    case(2): ;
+        struct Admin admin;
+        f = fopen("admins.bin", "ab+");
+        rewind(f);
+        while(fread(&admin, sizeof(struct Admin), 1, f)) {
+            if(admin.id == id && strcmp(admin.password, password)) {
+                loggedInAdmin = admin;
+                fclose(f);
+                return true;
+            }
+        }
+        fclose(f);
+        break;
+    }
+    return false;
+}
+
+void reg(int userType)
+{
+    int id;
+    char name[255];
+    char password[255];
+    printf("Enter ID:");
+    scanf("%d", &id);
+    printf("Enter Name:");
+    scanf("%s", name);
+    fflush(stdin);
+    printf("Enter Password:");
+    scanf("%s", password);
+    FILE *f;
+    switch(userType) {
+    case(0): ;
+        struct Student student;
+        student.id = id;
+        strcpy(student.password, password);
+        strcpy(student.name, name);
+        f = fopen("students.bin", "ab+");
+        fwrite(&student, sizeof(struct Student), 1, f);
+        fclose(f);
+        break;
+    case(1): ;
+
+        struct Doctor doctor;
+        doctor.id = id;
+        strcpy(doctor.password, password);
+        strcpy(doctor.name, name);
+        f = fopen("doctors.bin", "ab+");
+        fwrite(&doctor, sizeof(struct Doctor), 1, f);
+        fclose(f);
+        break;
+    case(2): ;
+
+        struct Admin admin;
+        admin.id = id;
+        strcpy(admin.password, password);
+        strcpy(admin.name, name);
+        printf(admin.name);
+        f = fopen("admins.bin", "ab+");
+        fwrite(&admin, sizeof(struct Admin), 1, f);
+        fclose(f);
+        break;
+    }
+}
+
+
+void enroll_course(int student_id, struct Course course)
+{
+    if(!checkPrerequistes(course, student_id)) {
+        printf("Course prerequistes not fulfilled");
+    }
+    struct StudentCourses newRecord;
+    newRecord.course_id = course.id;
+    newRecord.student_id = student_id;
+    newRecord.is_finished = false;
+    // Export this record to data store
+}
+
+bool checkPrerequistes(struct Course course, int student_id)
+{
+    for(int i = 0; i < sizeof(course.prerequisites); i++) {
+        if(!isStudentCourseFinished(student_id, course.prerequisites[i])) {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool isStudentCourseFinished(int student_id, int course_id)
+{
+
+    FILE *pt = fopen("student_courses.bin", "ab+");
+    struct StudentCourses studentCourse;
+    while(fread(&studentCourse, sizeof(struct StudentCourses), 1, pt)) {
+        if(studentCourse.student_id == student_id && studentCourse.course_id == course_id && studentCourse.is_finished) {
+            return true;
+        }
+    }
+    return false;
+}
+
+void create_course(int id, char name[])
+{
+    struct Course course;
+    strcpy(course.name, name);
+    course.id = id;
+    FILE *crs=fopen("courses.bin","ab+");
+    fwrite(&course,sizeof(struct Course),1,crs);
+    fclose(crs);
+}
+
+
+void display_courses()
+{
+    struct Course course;
+    FILE*pt;
+    pt = fopen("courses.bin", "ab+");
+    printf("    Name    |  ID  \n");
+    while(fread(&course, sizeof(struct Course), 1, pt)) {
+        printf("%-14s|%-6d%\n", course.name, course.id);
+    }
+}
+
+void listStudents()
+{
+    struct Student student;
+    struct Student students[300];
+    int i = 1;
+    FILE *pt;
+    pt = fopen("students.bin", "ab+");
+    while(fread(&student, sizeof(student), 1, pt)) {
+        students[i] = student;
+        printf("%d- %d\t%s\t%s\n", i, student.id, student.name, student.password);
+        i++;
+    }
+    int key;
+    scanf("%d", key);
+}
+
+void createCourse()
+{
+    cls
+    struct Course course;
+    printf("Enter Course Id: ");
+    scanf("%d", course.id);
+    printf("Enter Course Name: ");
+    scanf("%s", course.name);
+    char in[255];
+    printf("Enter Prerequiest courses Id's Or Press Enter to confirm: ");
+    struct Course courses[10];
+    int i = 0;
+    scanf("%s", in);
+    while(in != "\n" || in != "" || i == 10) {
+        scanf("%s", in);
+        courses[i] = in;
+        i++;
+    }
+    course.prerequisites = courses;
+    FILE* pt;
+    pt = fopen("courses.bin", "ab+");
+    fwrite(&course, sizeof(Course), 1, pt);
+    cls
+    printt("File created successfully!\nRedirecting in 5 seconds");
+    fclose(pt);
+    sleep(5000);
+}

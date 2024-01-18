@@ -1,0 +1,16 @@
+# depslib dependency file v1.0
+1692561773 source:d:\codeblocks new\doctor interface\main.c
+	<stdio.h>
+	<stdlib.h>
+	<stdbool.h>
+
+1685210406 source:d:\codeblocks new\doctor interface\datasource.c
+	<stdio.h>
+	<stdlib.h>
+	<stdbool.h>
+
+1685224804 source:d:\codeblocks new\doctor interface\test.c
+	<stdio.h>
+	<stdlib.h>
+	<stdbool.h>
+
